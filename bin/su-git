@@ -20,6 +20,22 @@ err_message() {
     exit 1
 }
 
+usage() {
+    cat <<-EOT
+Usage:
+       su-git [OPTIONS] <command>
+
+Options:
+      --identity <file>         Path to the private key file. 
+                                Alternatively, you can set this up permanently using git-config: git config ssh.identity <file>
+      --known-hosts <file>      Alternative path to the RSA known hosts file (default path used: ~/.ssh/known_hosts)
+      --trusted-host <hostname> Host to be added to the RSA knwon hosts file inside sshbox
+
+Commands:
+       Whatever command recognized by git. See the git(1) help section
+EOT
+}
+
 # Iterate over su-git command line invocation
 # Detect and extract identity file, trusted host, known hosts file (if option passed),
 # remove it from args, then rebuild the whole command-line without
@@ -27,6 +43,10 @@ args=( "$gitbin" )
 while [ $# -gt 0 ]
 do
     case $1 in
+        --help|-h)
+            usage
+            exit 0
+            ;;
         --identity)
             identity=$2
             shift 2
