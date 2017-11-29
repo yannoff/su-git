@@ -7,13 +7,14 @@ A simple tool to handle multiple git account, using multiple SSH keys.
 First, clone the project into a temporary directory:
 
 ```bash
-[/tmp]$ git clone https://github.com/yannoff/su-git.git
+$ cd /tmp
+$ git clone https://github.com/yannoff/su-git.git
 ```
 Then, from inside `su-git` directory, run :
 
 ```bash
-[/tmp]$ cd su-git
-[/tmp/su-git]$ sudo make install
+$ cd su-git
+$ sudo make install
 ```
 
 Now `su-git` can be called from anywhere on your system.
@@ -23,13 +24,45 @@ Now `su-git` can be called from anywhere on your system.
 Prior to the first run of `su-git`, you need to configure which identity file will be used for the current dir:
 
 ```bash
-git config ssh.identity /path/to/your/private_key
+$ git config ssh.identity /path/to/your/private_key
 ```
-Now you can use `su-git` exactly the same way as `git`, having your identity handled automatically.
+Now you can use `su-git` for `push`/`pull` operations, exactly the same way as `git`, having your identity handled automatically.
+
+**Example:**
+
+1. Use `su-git` for cloning
 
 ```bash
-su-git push -f
+$ su-git clone git@github.com:yannoff/su-git.git
 ```
+
+2. Work locally using `git`
+
+```bash
+$ git checkout -b feature/my-awesome-feature
+...
+$ git add .
+$ git commit -m "My commit"
+...
+```
+
+3. Use `su-git` when pushing your local branch
+
+```bash
+$ su-git push -u origin feature/my-awesome-feature
+```
+
+
+## Advanced usage
+
+By default, `su-git` take the user's `known_hosts` list file (`~/.ssh/known_hosts`) for host key checking.
+
+An alternative file can be specified using the `--known_hosts` option, e.g:
+
+```bash
+$ su-git --known-hosts ~/special_known_hosts clone git@github.com:yannoff/su-git.git
+```
+
 
 ## Note
 

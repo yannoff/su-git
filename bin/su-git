@@ -4,6 +4,7 @@
 # @project su-git
 # @license MIT
 #
+set -f
 
 # Initialize core variables required to build the docker command
 host=`hostname`
@@ -50,10 +51,6 @@ do
             identity=$2
             shift 2
             ;;
-        --trusted-host)
-            trusted_host=$2
-            shift 2
-            ;;
         --known-host)
             known_host=$2
             shift 2
@@ -72,13 +69,8 @@ done
 # TODO For major readability, use a bash array instead
 printf -v docker_command 'docker run --rm --name su_git -h %s -e USER=%s -w /app/src -v %s:/app/src -v %s:/app/ssh/id_rsa' "$host" "$user" "$PWD" "$identity"
 
-if [ -z "$trusted_host" ]
-then
-    [ -f "$known_hosts" ] || err_message "Could not stat the known hosts file at default location \"%s\".\nPlease consider either giving a trusted host to add using --trusted-host option, either giving an alternate location using --known-hosts option.\n" $known_hosts
-    docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
-else
-    docker_command+=" -e KNOWN_HOST=$trusted_host"
-fi
+[ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
+docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
 
 # Print debug informations
 #echo -e "[info] \e[01;32mRunning command: \e[00m"$docker_command $dockerimg "${args[@]}"
