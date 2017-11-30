@@ -47,6 +47,10 @@ do
             usage
             exit 0
             ;;
+        --debug)
+            debug=1
+            shift 1
+            ;;
         --identity)
             identity=$2
             shift 2
@@ -89,6 +93,6 @@ printf -v docker_command 'docker run --rm --name su_git -h %s -e USER=%s -w /app
 docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
 
 # Print debug informations
-#echo -e "[info] \e[01;32mRunning command: \e[00m"$docker_command $dockerimg "${args[@]}"
+[ -z "$debug" ] || echo -e "[info] \e[01;32mRunning:\e[00m\n"$docker_command $dockerimg "${args[@]}"
 
 $docker_command $dockerimg "${args[@]}"
