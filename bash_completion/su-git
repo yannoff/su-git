@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# @author  yannoff <https://github.com/yannoff>
+# @project su-git
+# @license MIT
+#
+
+# Source git suite's original completion script, since we want
+# the exact same completion behavior for su-git
+source /usr/share/bash-completion/completions/git
+
+__git_complete su-git __git_main
