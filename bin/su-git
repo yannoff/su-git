@@ -62,12 +62,28 @@ do
     esac
 done
 
+# Recursively traverse to find git top-level directory
+# and build relative CWD
+topdir=$PWD
+subdirs=()
+while [ ! -d "$topdir/.git" ]
+do
+    subdirs+=(`basename $topdir`)
+    topdir=`dirname $topdir`
+done
+# Rebuild CWD upon subdirs array
+cwd=
+for f in "${subdirs[@]}"
+do
+    cwd=$f/$cwd
+done
+
 [ -z "$identity" ] && identity=`git config ssh.identity`
 [ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease configure it issuing: git config ssh.identity /path/to/private_rsa .\n\n"
 
 # Base docker command
 # TODO For major readability, use a bash array instead
-printf -v docker_command 'docker run --rm --name su_git -h %s -e USER=%s -w /app/src -v %s:/app/src -v %s:/app/ssh/id_rsa' "$host" "$user" "$PWD" "$identity"
+printf -v docker_command 'docker run --rm --name su_git -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity"
 
 [ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
 docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
