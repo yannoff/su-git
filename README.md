@@ -14,8 +14,11 @@ Then, from inside `su-git` directory, run :
 
 ```bash
 $ cd su-git
+$ make
 $ sudo make install
 ```
+**NOTE:** _The_ `make` _step can be skipped, since_ `ssh-box` _image can be pulled at runtime._
+
 
 Now `su-git` can be called from anywhere on your system.
 

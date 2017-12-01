@@ -1,6 +1,12 @@
 # vim: set noexpandtab
+#
+# @project su-git
+# @author  yannoff
+# @license MIT
+#
 all:
-	@echo "\nNothing to compile, you can directly run:\nsudo make install\n"
+	@sh ./install.sh
+	@echo "\nNow you can run:\nsudo make install\n"
 
 install:
 	@cp -rv man/* /usr/share/man/
