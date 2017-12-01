@@ -57,7 +57,7 @@ $ su-git push -u origin feature/my-awesome-feature
 
 By default, `su-git` take the user's `known_hosts` list file (`~/.ssh/known_hosts`) for host key checking.
 
-An alternative file can be specified using the `--known_hosts` option, e.g:
+An alternative file can be specified using the `--known-hosts` option, e.g:
 
 ```bash
 $ su-git --known-hosts ~/special_known_hosts clone git@github.com:yannoff/su-git.git

@@ -31,6 +31,9 @@ Options:
                                 Alternatively, you can set this up permanently using git-config: git config ssh.identity <file>
       --known-hosts <file>      Alternative path to the RSA known hosts file (default path used: ~/.ssh/known_hosts)
 
+      --help                    Display  help informations and exit.
+      --verbose                 Print debug informations at runtime.
+
 Commands:
        Whatever command recognized by git. See the git(1) help section
 EOT
@@ -47,8 +50,8 @@ do
             usage
             exit 0
             ;;
-        --debug)
-            debug=1
+        --verbose)
+            verbose=1
             shift 1
             ;;
         --identity)
@@ -75,24 +78,26 @@ do
     subdirs+=(`basename $topdir`)
     topdir=`dirname $topdir`
 done
+[ -z "$verbose" ] || echo -e "\e[01;33m[info] Git top-level directory: \e[00m$topdir"
 # Rebuild CWD upon subdirs array
 cwd=
 for f in "${subdirs[@]}"
 do
     cwd=$f/$cwd
 done
+[ -z "$verbose" ] || echo -e "\e[01;33m[info] Current work directory: \e[00m./$cwd"
 
 [ -z "$identity" ] && identity=`git config ssh.identity`
 [ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease configure it issuing: git config ssh.identity /path/to/private_rsa .\n\n"
 
 # Base docker command
 # TODO For major readability, use a bash array instead
-printf -v docker_command 'docker run --rm --name su_git -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity"
+printf -v docker_command 'docker run --rm -t -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity"
 
 [ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
 docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
 
-# Print debug informations
-[ -z "$debug" ] || echo -e "[info] \e[01;32mRunning:\e[00m\n"$docker_command $dockerimg "${args[@]}"
+# Print verbose informations
+[ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg "${args[@]}"
 
 $docker_command $dockerimg "${args[@]}"
