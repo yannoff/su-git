@@ -69,22 +69,25 @@ do
     esac
 done
 
-# Recursively traverse to find git top-level directory
-# and build relative CWD
 topdir=$PWD
-subdirs=()
-while [ ! -d "$topdir/.git" ]
-do
-    subdirs+=(`basename $topdir`)
-    topdir=`dirname $topdir`
-done
-[ -z "$verbose" ] || echo -e "\e[01;33m[info] Git top-level directory: \e[00m$topdir"
-# Rebuild CWD upon subdirs array
 cwd=
-for f in "${subdirs[@]}"
-do
-    cwd=$f/$cwd
-done
+if [ "${args[1]}" != "clone" ]
+then
+    # Recursively traverse to find git top-level directory
+    # and build relative CWD
+    subdirs=()
+    while [ ! -d "$topdir/.git" -a ! "$topdir" = "/" ]
+    do
+        subdirs+=(`basename $topdir`)
+        topdir=`dirname $topdir`
+    done
+    [ -z "$verbose" ] || echo -e "\e[01;33m[info] Git top-level directory: \e[00m$topdir"
+    # Rebuild CWD upon subdirs array
+    for f in "${subdirs[@]}"
+    do
+        cwd=$f/$cwd
+    done
+fi
 [ -z "$verbose" ] || echo -e "\e[01;33m[info] Current work directory: \e[00m./$cwd"
 
 [ -z "$identity" ] && identity=`git config ssh.identity`
