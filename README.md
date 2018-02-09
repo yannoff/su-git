@@ -8,7 +8,7 @@ I ran into the problem when having to collaborate on 2 distincts `github` accoun
 
 Here is the pitfall: each SSH key can be associated with one and **only** one account. 
 
-Unfortunately, `git` automatically takes the default key (typically `$HOME/.ssh/id_rsa`) as granted.
+Unfortunately, `git` automatically takes the default key (typically `$HOME/.ssh/id_rsa`) for granted.
 
 So creating a fresh new SSH key (let's say `$HOME/.ssh/id_rsa2`) and adding the corresponding public key to the repository was not enough to solve the problem. 
 
