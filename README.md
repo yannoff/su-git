@@ -1,6 +1,20 @@
 # su-git
 
-A simple tool to handle multiple git account, using multiple SSH keys.
+A simple tool to handle multiple git accounts, using multiple SSH keys.
+
+## The reason
+
+I ran into the problem when having to collaborate on 2 distincts `github` accounts simultaneously: my own account and the one I was running for my organization.
+
+Here is the pitfall: each SSH key can be associated with one and **only** one account. 
+
+Unfortunately, `git` automatically takes the default key (typically `$HOME/.ssh/id_rsa`) as granted.
+
+So creating a fresh new SSH key (let's say `$HOME/.ssh/id_rsa2`) and adding the corresponding public key to the repository was not enough to solve the problem. 
+
+Indeed, what `git` lacks is an option (like `--identity` on `ssh` command) to specify which private key should be used.
+
+_And here comes **su-git**!_
 
 ## Installation
 
@@ -10,14 +24,19 @@ First, clone the project into a temporary directory:
 $ cd /tmp
 $ git clone https://github.com/yannoff/su-git.git
 ```
-Then, from inside `su-git` directory, run :
+Then, go inside `su-git` directory, 
 
 ```bash
 $ cd su-git
+```
+
+then run:
+
+```bash
 $ make
 $ sudo make install
 ```
-**NOTE:** _The_ `make` _step can be skipped, since_ `ssh-box` _image can be pulled at runtime._
+> **NOTE:** _The_ `make` _step can be skipped, since_ `ssh-box` _image can be pulled at runtime._
 
 
 Now `su-git` can be called from anywhere on your system.
@@ -26,9 +45,14 @@ Now `su-git` can be called from anywhere on your system.
 
 Prior to the first run of `su-git`, you need to configure which identity file will be used for the current dir:
 
+
 ```bash
 $ git config ssh.identity /path/to/your/private_key
 ```
+
+> **NOTE:** `su-git` takes advantage of the powerful `git-config` engine to store its `ssh.identity` option. 
+_This means you can configure a global setting for your private key, and override it on a per-project level, as you would do for any other regular git configuration value._
+
 Now you can use `su-git` for `push`/`pull` operations, exactly the same way as `git`, having your identity handled automatically.
 
 **Example:**
@@ -70,3 +94,9 @@ $ su-git --known-hosts ~/special_known_hosts clone git@github.com:yannoff/su-git
 ## Note
 
 This project was proudly pushed using [su-git](https://github.com/yannoff/su-git "su-git project").
+
+## Issues
+
+Every project is perfectible, [suggestions are welcome](https://github.com/yannoff/su-git/issues)!
+
+Feel free to [report any issue](https://github.com/yannoff/su-git/issues) you would encounter.
