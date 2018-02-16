@@ -13,7 +13,7 @@ group=`id -gn`
 uid=`id -u`
 gid=`id -g`
 gitbin=git
-dockerimg=yannoff/sshbox
+dockerimg=yannoff/gitbox
 known_hosts=$HOME/.ssh/known_hosts
 
 err_message() {
@@ -32,6 +32,7 @@ Options:
       --known-hosts <file>      Alternative path to the RSA known hosts file (default path used: ~/.ssh/known_hosts)
 
       --help                    Display  help informations and exit.
+
       --verbose                 Print debug informations at runtime.
 
 Commands:
@@ -69,9 +70,11 @@ do
     esac
 done
 
+cmd=${args[1]}
+
 topdir=$PWD
 cwd=
-if [ "${args[1]}" != "clone" ]
+if [ "$cmd" != "clone" ]
 then
     # Recursively traverse to find git top-level directory
     # and build relative CWD
@@ -87,11 +90,15 @@ then
     do
         cwd=$f/$cwd
     done
+    [ -z "$verbose" ] || echo -e "\e[01;33m[info] Current work directory: \e[00m./$cwd"
+    # If not passed as an option, try to fetch identity file from config
+    [ -z "$identity" ] && identity=`git config ssh.identity`
+else
+    [ -z "$identity" ] && err_message "Please specify an identity file with --identity option:\n\tsu-git --identity /path/to/private_rsa ${args[*]}\n\n"
+    printf "Would you like to store %s as identity file for this repo? (y/N)" $identity
+    read autostore
 fi
-[ -z "$verbose" ] || echo -e "\e[01;33m[info] Current work directory: \e[00m./$cwd"
-
-[ -z "$identity" ] && identity=`git config ssh.identity`
-[ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease configure it issuing: git config ssh.identity /path/to/private_rsa .\n\n"
+[ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease use --identity option or configure it using: git config ssh.identity /path/to/private_rsa .\n\n"
 
 # Base docker command
 # TODO For major readability, use a bash array instead
@@ -104,3 +111,14 @@ docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
 [ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg "${args[@]}"
 
 $docker_command $dockerimg "${args[@]}"
+
+# If the user wanted his identity file stored automatically, let's do it
+if [ "$cmd" = "clone" -a "$autostore" = "y" ]
+then
+    argc=${#args[@]}
+    let argc-=1
+    repodir=`basename ${args[$argc]} .git`
+    cd $repodir
+    [ -z "$verbose" ] || echo -e "\e[01;33m[info] Executing: \e[00mgit config ssh.identity $identity"
+    git config ssh.identity $identity
+fi
