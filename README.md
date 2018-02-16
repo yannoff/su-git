@@ -44,7 +44,7 @@ then run:
 $ make
 $ sudo make install
 ```
-> **NOTE:** _The_ `make` _step can be skipped, since_ `ssh-box` _image can be pulled at runtime._
+> **NOTE:** _The_ `make` _step can be skipped, since the docker image used by su-git can be pulled at runtime._
 
 
 Now `su-git` can be called from anywhere on your system.
