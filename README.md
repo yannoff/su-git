@@ -16,6 +16,14 @@ Indeed, what `git` lacks is an option (like `--identity` on `ssh` command) to sp
 
 _And here comes **su-git**!_
 
+## Prerequisites
+
+The script is designed to be run on Linux and any other Unix environments.
+
+Additionally, the following packages are necessary for `su-git`:
+- `bash`
+- `docker`
+
 ## Installation
 
 First, clone the project into a temporary directory:
@@ -60,10 +68,19 @@ Now you can use `su-git` for `push`/`pull` operations, exactly the same way as `
 1. Use `su-git` for cloning
 
 ```bash
-$ su-git clone git@github.com:yannoff/su-git.git
+$ su-git clone --identity ~/.ssh/your_rsa git@github.com:dummy/my-project.git
 ```
 
-2. Work locally using `git`
+> **NOTE:** When cloning, there is no `.git` folder in the current directory, so `git config` cannot be used here, even if a global setting exists for `ssh.identity`.
+
+2. Configure your identity file from inside the working dir
+
+```bash
+$ cd my-project
+$ git config ssh.identity ~/.ssh/your_rsa
+```
+
+3. Work locally using `git`
 
 ```bash
 $ git checkout -b feature/my-awesome-feature
@@ -73,7 +90,7 @@ $ git commit -m "My commit"
 ...
 ```
 
-3. Use `su-git` when pushing your local branch
+4. Use `su-git` when pushing your local branch
 
 ```bash
 $ su-git push -u origin feature/my-awesome-feature
