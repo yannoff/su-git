@@ -43,7 +43,7 @@ EOT
 # Iterate over su-git command line invocation
 # Detect and extract identity file, trusted host, known hosts file (if option passed),
 # remove it from args, then rebuild the whole command-line without
-args=( "$gitbin" )
+args=()
 while [ $# -gt 0 ]
 do
     case $1 in
@@ -70,7 +70,7 @@ do
     esac
 done
 
-cmd=${args[1]}
+cmd=${args[0]}
 
 topdir=$PWD
 cwd=
@@ -108,9 +108,9 @@ printf -v docker_command 'docker run --rm -t -h %s -e USER=%s -w /app/src/%s -v 
 docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
 
 # Print verbose informations
-[ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg "${args[@]}"
+[ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg ${gitbin} "${args[@]}"
 
-$docker_command $dockerimg "${args[@]}"
+$docker_command $dockerimg ${gitbin} "${args[@]}"
 
 # If the user wanted his identity file stored automatically, let's do it
 if [ "$cmd" = "clone" -a "$autostore" = "y" ]
