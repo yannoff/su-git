@@ -102,7 +102,7 @@ fi
 
 # Base docker command
 # TODO For major readability, use a bash array instead
-printf -v docker_command 'docker run --rm -t -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity"
+printf -v docker_command 'docker run --rm -t -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa -v %s/.gitconfig:/etc/gitconfig' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity" "$HOME"
 
 [ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
 docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
