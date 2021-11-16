@@ -47,6 +47,14 @@ args=()
 while [ $# -gt 0 ]
 do
     case $1 in
+        # Support passing options in the --option=value fashion
+        --*=*)
+            arg=$1
+            option=${arg%%=*}
+            value=${arg##*=}
+            shift 1
+            set -- ${option} ${value} $@
+            ;;
         --help|-h)
             usage
             exit 0
