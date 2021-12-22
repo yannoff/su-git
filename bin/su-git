@@ -15,6 +15,8 @@ gid=`id -g`
 gitbin=git
 dockerimg=yannoff/gitbox
 known_hosts=$HOME/.ssh/known_hosts
+# Use the GIT_IDENTITY env var as default
+identity=${GIT_IDENTITY}
 
 err_message() {
     printf "$@"
@@ -28,7 +30,7 @@ Usage:
 
 Options:
       --identity <file>         Path to the private key file. 
-                                Alternatively, you can set this up permanently using git-config: git config ssh.identity <file>
+                                Alternatively, this setting may be passed via the GIT_IDENTITY environment variable or stored using git-config: git config ssh.identity <file>
       --known-hosts <file>      Alternative path to the RSA known hosts file (default path used: ~/.ssh/known_hosts)
 
       --help                    Display  help informations and exit.
@@ -102,11 +104,11 @@ then
     # If not passed as an option, try to fetch identity file from config
     [ -z "$identity" ] && identity=`git config ssh.identity`
 else
-    [ -z "$identity" ] && err_message "Please specify an identity file with --identity option:\n\tsu-git --identity /path/to/private_rsa ${args[*]}\n\n"
+    [ -z "$identity" ] && err_message "Please specify an identity file either via the GIT_IDENTITY env variable or the --identity option:\n\tsu-git --identity /path/to/private_rsa ${args[*]}\n\n"
     printf "Would you like to store %s as identity file for this repo? (y/N)" $identity
     read autostore
 fi
-[ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease use --identity option or configure it using: git config ssh.identity /path/to/private_rsa .\n\n"
+[ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease use either the GIT_IDENTITY env var, the --identity option or configure it using: git config ssh.identity /path/to/private_rsa .\n\n"
 
 # Base docker command
 # TODO For major readability, use a bash array instead
