@@ -128,8 +128,8 @@ d+=( -w /app/src/$cwd )
 d+=( -v $topdir:/app/src/$cwd )
 # Bind-mount identity file
 d+=( -v $identity:/app/ssh/id_rsa )
-# Bind-mount userland's git config
-d+=( -v $HOME/.gitconfig:/etc/gitconfig )
+# Bind-mount userland's git config, if appropriate
+[ -f "$HOME/.gitconfig" ] && d+=( -v $HOME/.gitconfig:/etc/gitconfig )
 # Bind-mount $SSH/known_hosts config file
 d+=( -v $known_hosts:/app/ssh/known_hosts )
 
