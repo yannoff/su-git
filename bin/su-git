@@ -110,12 +110,30 @@ else
 fi
 [ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease use either the GIT_IDENTITY env var, the --identity option or configure it using: git config ssh.identity /path/to/private_rsa .\n\n"
 
-# Base docker command
-# TODO For major readability, use a bash array instead
-printf -v docker_command 'docker run --rm -it -h %s -e USER=%s -w /app/src/%s -v %s:/app/src/%s -v %s:/app/ssh/id_rsa -v %s/.gitconfig:/etc/gitconfig' "$host" "$user" "$cwd" "$topdir" "$cwd" "$identity" "$HOME"
-
 [ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
-docker_command+=" -v $known_hosts:/app/ssh/known_hosts"
+
+# Build base docker command
+d=( docker run )
+# Remove container after run
+d+=( --rm )
+# Run in interactive mode, allocate a TTY
+d+=( -it )
+# Set container hostname
+d+=( -h $host )
+# Set container USER env variable
+d+=( -e USER=$user )
+# Define working dir
+d+=( -w /app/src/$cwd )
+# Bind-mount top-level dir
+d+=( -v $topdir:/app/src/$cwd )
+# Bind-mount identity file
+d+=( -v $identity:/app/ssh/id_rsa )
+# Bind-mount userland's git config
+d+=( -v $HOME/.gitconfig:/etc/gitconfig )
+# Bind-mount $SSH/known_hosts config file
+d+=( -v $known_hosts:/app/ssh/known_hosts )
+
+docker_command=${d[@]}
 
 # Print verbose informations
 [ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg ${gitbin} "${args[@]}"
