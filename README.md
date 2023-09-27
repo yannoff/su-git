@@ -16,14 +16,6 @@ Indeed, what `git` lacks is an option (like `--identity` on `ssh` command) to sp
 
 _And here comes **su-git**!_
 
-## Prerequisites
-
-The script is designed to be run on Linux and any other Unix environments.
-
-Additionally, the following packages are necessary for `su-git`:
-- `bash`
-- `docker`
-
 ## Installation
 
 First, clone the project into a temporary directory:
@@ -94,17 +86,6 @@ $ git commit -m "My commit"
 
 ```bash
 $ su-git push -u origin feature/my-awesome-feature
-```
-
-
-## Advanced usage
-
-By default, `su-git` take the user's `known_hosts` list file (`~/.ssh/known_hosts`) for host key checking.
-
-An alternative file can be specified using the `--known-hosts` option, e.g:
-
-```bash
-$ su-git --known-hosts ~/special_known_hosts clone git@github.com:yannoff/su-git.git
 ```
 
 

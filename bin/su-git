@@ -6,15 +6,6 @@
 #
 set -f
 
-# Initialize core variables required to build the docker command
-host=`hostname`
-user=`whoami`
-group=`id -gn`
-uid=`id -u`
-gid=`id -g`
-gitbin=git
-dockerimg=yannoff/gitbox
-known_hosts=$HOME/.ssh/known_hosts
 # Use the GIT_IDENTITY env var as default
 identity=${GIT_IDENTITY}
 
@@ -31,7 +22,6 @@ Usage:
 Options:
       --identity <file>         Path to the private key file. 
                                 Alternatively, this setting may be passed via the GIT_IDENTITY environment variable or stored using git-config: git config ssh.identity <file>
-      --known-hosts <file>      Alternative path to the RSA known hosts file (default path used: ~/.ssh/known_hosts)
 
       --help                    Display  help informations and exit.
 
@@ -43,7 +33,7 @@ EOT
 }
 
 # Iterate over su-git command line invocation
-# Detect and extract identity file, trusted host, known hosts file (if option passed),
+# Detect and extract identity (if option passed),
 # remove it from args, then rebuild the whole command-line without
 args=()
 while [ $# -gt 0 ]
@@ -69,10 +59,6 @@ do
             identity=$2
             shift 2
             ;;
-        --known-host)
-            known_host=$2
-            shift 2
-            ;;
         *)
             args+=("$1")
             shift
@@ -80,11 +66,11 @@ do
     esac
 done
 
-cmd=${args[0]}
+main=${args[0]}
 
 topdir=$PWD
 cwd=
-if [ "$cmd" != "clone" ]
+if [ "$main" != "clone" ]
 then
     # Recursively traverse to find git top-level directory
     # and build relative CWD
@@ -110,38 +96,18 @@ else
 fi
 [ -z "$identity" ] && err_message "No identity file configured. Exiting.\n\nPlease use either the GIT_IDENTITY env var, the --identity option or configure it using: git config ssh.identity /path/to/private_rsa .\n\n"
 
-[ -f "$known_hosts" ] || err_message "\nCould not stat the known hosts file at default location \"%s\".\nPlease consider either creating it or giving an alternate location using --known-hosts option.\n\n" $known_hosts
+# Base command
+cmd=()
+cmd+=( env )
+cmd+=( GIT_SSH_COMMAND="ssh -i $identity -o IdentitiesOnly=yes" )
+cmd+=( git )
 
-# Build base docker command
-d=( docker run )
-# Remove container after run
-d+=( --rm )
-# Run in interactive mode, allocate a TTY
-d+=( -it )
-# Set container hostname
-d+=( -h $host )
-# Set container USER env variable
-d+=( -e USER=$user )
-# Define working dir
-d+=( -w /app/src/$cwd )
-# Bind-mount top-level dir
-d+=( -v $topdir:/app/src/$cwd )
-# Bind-mount identity file
-d+=( -v $identity:/app/ssh/id_rsa )
-# Bind-mount userland's git config, if appropriate
-[ -f "$HOME/.gitconfig" ] && d+=( -v $HOME/.gitconfig:/etc/gitconfig )
-# Bind-mount $SSH/known_hosts config file
-d+=( -v $known_hosts:/app/ssh/known_hosts )
+[ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m" "${cmd[@]}" "${args[@]}"
 
-docker_command=${d[@]}
-
-# Print verbose informations
-[ -z "$verbose" ] || echo -e "\e[01;32m[exec]\e[00m "$docker_command $dockerimg ${gitbin} "${args[@]}"
-
-$docker_command $dockerimg ${gitbin} "${args[@]}"
+"${cmd[@]}" "${args[@]}"
 
 # If the user wanted his identity file stored automatically, let's do it
-if [ "$cmd" = "clone" -a "$autostore" = "y" ]
+if [ "$main" = "clone" -a "$autostore" = "y" ]
 then
     argc=${#args[@]}
     let argc-=1
