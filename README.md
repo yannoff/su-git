@@ -112,8 +112,6 @@ $ su-git --known-hosts ~/special_known_hosts clone git@github.com:yannoff/su-git
 
 This project was proudly pushed using [su-git](https://github.com/yannoff/su-git "su-git project").
 
-## Issues
+## License
 
-Every project is perfectible, [suggestions are welcome](https://github.com/yannoff/su-git/issues)!
-
-Feel free to [report any issue](https://github.com/yannoff/su-git/issues) you would encounter.
+Licensed under the [MIT License](LICENSE).
