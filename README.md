@@ -36,8 +36,6 @@ then run:
 $ make
 $ sudo make install
 ```
-> **NOTE:** _The_ `make` _step can be skipped, since the docker image used by su-git can be pulled at runtime._
-
 
 Now `su-git` can be called from anywhere on your system.
 
@@ -50,7 +48,7 @@ Prior to the first run of `su-git`, you need to configure which identity file wi
 $ git config ssh.identity /path/to/your/private_key
 ```
 
-> **NOTE:** `su-git` takes advantage of the powerful `git-config` engine to store its `ssh.identity` option. 
+> **NOTE:** `su-git` leverages the powerful `git-config` engine to store its `ssh.identity` option. 
 _This means you can configure a global setting for your private key, and override it on a per-project level, as you would do for any other regular git configuration value._
 
 Now you can use `su-git` for `push`/`pull` operations, exactly the same way as `git`, having your identity handled automatically.
